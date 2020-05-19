@@ -47,6 +47,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'customer_name' => 'required|string',
@@ -76,11 +77,17 @@ class OrderController extends Controller
                 $items = [];
                 $subtotal = 0;
                 foreach ($params['items'] as $item) {
-                    $product = Product::find($item['product_id']);
+                    unset($item['description']);
+                    unset($item['created_at']);
+                    unset($item['updated_at']);
+                    unset($item['name']);
+                    unset($item['image']);
+                    $product = Product::find($item['id']);
                     $items[] = array_merge($item, [
                         'order_id' => $order->id,
                         'price' => $product->price,
                         'total' => $product->price * $item['quantity'],
+                        'product_id' => $item['id'],
                     ]);
 
                     $subtotal += $product->price * $item['quantity'];
