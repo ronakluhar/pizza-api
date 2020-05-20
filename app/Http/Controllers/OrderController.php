@@ -82,17 +82,19 @@ class OrderController extends Controller
                     unset($item['updated_at']);
                     unset($item['name']);
                     unset($item['image']);
+                    $product_id = $item['id'];
                     $product = Product::find($item['id']);
+                    unset($item['id']);
                     $items[] = array_merge($item, [
                         'order_id' => $order->id,
                         'price' => $product->price,
                         'total' => $product->price * $item['quantity'],
-                        'product_id' => $item['id'],
+                        'product_id' => $product_id,
                     ]);
 
                     $subtotal += $product->price * $item['quantity'];
                 }
-
+                \Log::info($items);
                 $order->subtotal = $subtotal;
                 $order->delivery_charge = 10;
                 $order->tax = 5 * 100 / $subtotal;
@@ -106,7 +108,7 @@ class OrderController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error($e);
+            \Log::error($e->getMessage());
             return $this->sendError(__('lables.something_went_wrong'), null, 400);
         }
     }
